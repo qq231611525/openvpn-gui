@@ -36,6 +36,8 @@
 #include "openvpn_config.h"
 
 
+extern options_t o;
+
 #define URL_LEN             1024
 #define PROFILE_NAME_LEN    128
 #define READ_CHUNK_LEN      65536
