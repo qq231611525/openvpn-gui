@@ -32,6 +32,9 @@
 #include "openvpn-gui-res.h"
 #include "save_pass.h"
 #include "options.h"
+#include "tray.h"
+#include "openvpn_config.h"
+
 
 #define URL_LEN             1024
 #define PROFILE_NAME_LEN    128
