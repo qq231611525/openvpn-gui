@@ -247,6 +247,8 @@ CreatePopupMenus()
         AppendMenu(hMenuImport, MF_STRING, IDM_IMPORT_AS, LoadLocalizedString(IDS_MENU_IMPORT_AS));
         AppendMenu(
             hMenuImport, MF_STRING, IDM_IMPORT_URL, LoadLocalizedString(IDS_MENU_IMPORT_URL));
+        AppendMenu(
+            hMenuImport, MF_STRING, IDM_DNS_UPDATE, LoadLocalizedString(IDS_MENU_DNS_UPDATE));
 
         AppendMenu(hMenu, MF_STRING, IDM_SETTINGS, LoadLocalizedString(IDS_MENU_SETTINGS));
         AppendMenu(hMenu, MF_STRING, IDM_CLOSE, LoadLocalizedString(IDS_MENU_CLOSE));
@@ -324,6 +326,8 @@ CreatePopupMenus()
         AppendMenu(hMenuImport, MF_STRING, IDM_IMPORT_AS, LoadLocalizedString(IDS_MENU_IMPORT_AS));
         AppendMenu(
             hMenuImport, MF_STRING, IDM_IMPORT_URL, LoadLocalizedString(IDS_MENU_IMPORT_URL));
+        AppendMenu(
+            hMenuImport, MF_STRING, IDM_DNS_UPDATE, LoadLocalizedString(IDS_MENU_DNS_UPDATE));
 
         AppendMenu(hMenu, MF_STRING, IDM_SETTINGS, LoadLocalizedString(IDS_MENU_SETTINGS));
         AppendMenu(hMenu, MF_STRING, IDM_CLOSE, LoadLocalizedString(IDS_MENU_CLOSE));

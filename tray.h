@@ -23,7 +23,8 @@
 #ifndef TRAY_H
 #define TRAY_H
 
-#include "options.h"
+#include "misc.h"
+#include "main.h"
 
 
 #define IDM_SETTINGS       221
@@ -32,6 +33,7 @@
 #define IDM_IMPORT_FILE    225
 #define IDM_IMPORT_AS      226
 #define IDM_IMPORT_URL     227
+#define IDM_DNS_UPDATE     228
 
 #define IDM_CONNECTMENU    300
 #define IDM_DISCONNECTMENU (1 + IDM_CONNECTMENU)

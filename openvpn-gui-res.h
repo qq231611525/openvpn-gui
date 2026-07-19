@@ -198,6 +198,12 @@
 #define IDS_MENU_IMPORT_AS              1026
 #define IDS_MENU_IMPORT_FILE            1027
 #define IDS_MENU_IMPORT_URL             1028
+#define IDS_MENU_DNS_UPDATE             1029
+
+/* DNS TXT Update notifications */
+#define IDS_NFO_DNS_LOOKUP_START         1280
+#define IDS_NFO_DNS_UPDATE_SUCCESS       1281
+#define IDS_NFO_DNS_AUTO_CONNECT_FAILED  1282
 
 /* LogViewer Dialog */
 #define IDS_ERR_START_LOG_VIEWER        1101

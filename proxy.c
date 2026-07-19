@@ -645,8 +645,13 @@ OnProxy(connection_t *c, char *line)
         ParseProxyString(proxy_str, scheme, &type, &addr, &port);
     }
 
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd), "proxy %s %.100ls %.100ls", type, addr, port);
+    char cmd[256];
+    char addr_a[116], port_a[16];
+    WideCharToMultiByte(CP_ACP, 0, addr, -1, addr_a, sizeof(addr_a), NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, port, -1, port_a, sizeof(port_a), NULL, NULL);
+    addr_a[sizeof(addr_a) - 1] = '\0';
+    port_a[sizeof(port_a) - 1] = '\0';
+    snprintf(cmd, sizeof(cmd), "proxy %s %s %s", type, addr_a, port_a);
     cmd[sizeof(cmd) - 1] = '\0';
     ManagementCommand(c, cmd, NULL, regular);
 

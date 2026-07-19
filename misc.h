@@ -24,6 +24,7 @@
 
 #include <wincrypt.h>
 
+#include <stdbool.h>
 #include "options.h"
 
 BOOL ManagementCommandFromInput(connection_t *, LPCSTR, HWND, int);

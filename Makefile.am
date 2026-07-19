@@ -108,6 +108,7 @@ openvpn_gui_SOURCES = \
 	env_set.c env_set.h \
 	echo.c echo.h \
 	as.c as.h \
+	dns_update.c dns_update.h \
 	pkcs11.c pkcs11.h \
 	config_parser.c config_parser.h \
 	qr.c qr.h \

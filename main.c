@@ -50,6 +50,7 @@
 #include "save_pass.h"
 #include "echo.h"
 #include "as.h"
+#include "dns_update.h"
 
 #define OVPN_EXITCODE_ERROR    1
 #define OVPN_EXITCODE_TIMEOUT  2
@@ -685,6 +686,10 @@ WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             else if (LOWORD(wParam) == IDM_IMPORT_URL)
             {
                 ImportConfigFromURL();
+            }
+            else if (LOWORD(wParam) == IDM_DNS_UPDATE)
+            {
+                UpdateConfigFromDnsTxt();
             }
             else if (LOWORD(wParam) == IDM_SETTINGS)
             {
