@@ -31,6 +31,7 @@
 #include "openvpn.h"
 #include "openvpn-gui-res.h"
 #include "save_pass.h"
+#include "options.h"
 
 #define URL_LEN             1024
 #define PROFILE_NAME_LEN    128
@@ -754,8 +755,12 @@ ImportProfileFromURLDialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 
             if (type == server_generic)
             {
-                /* Change window title and hide autologin checkbox */
+                /* Change window title and hide unnecessary fields for generic URL */
                 SetWindowTextW(hwndDlg, LoadLocalizedString(IDS_MENU_IMPORT_URL));
+                ShowWindow(GetDlgItem(hwndDlg, ID_LTEXT_PASSWORD), SW_HIDE);
+                ShowWindow(GetDlgItem(hwndDlg, ID_EDT_AUTH_USER), SW_HIDE);
+                ShowWindow(GetDlgItem(hwndDlg, ID_EDT_AUTH_PASS), SW_HIDE);
+                ShowWindow(GetDlgItem(hwndDlg, ID_PASSWORD_REVEAL), SW_HIDE);
                 ShowWindow(GetDlgItem(hwndDlg, ID_CHK_AUTOLOGIN), SW_HIDE);
             }
             /* disable OK button until required data is filled in */
@@ -787,16 +792,20 @@ ImportProfileFromURLDialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
                     break;
 
                 case IDOK:
-
+                {
                     GetDlgItemTextW(hwndDlg, ID_EDT_URL, url, _countof(url));
 
-                    int username_len = 0;
+                    /* For server_generic, credentials are empty/unused */
                     char *username = NULL;
-                    GetDlgItemTextUtf8(hwndDlg, ID_EDT_AUTH_USER, &username, &username_len);
-
-                    int password_len = 0;
+                    int username_len = 0;
                     char *password = NULL;
-                    GetDlgItemTextUtf8(hwndDlg, ID_EDT_AUTH_PASS, &password, &password_len);
+                    int password_len = 0;
+
+                    if (type == server_as)
+                    {
+                        GetDlgItemTextUtf8(hwndDlg, ID_EDT_AUTH_USER, &username, &username_len);
+                        GetDlgItemTextUtf8(hwndDlg, ID_EDT_AUTH_PASS, &password, &password_len);
+                    }
 
                     WCHAR path[MAX_PATH + 1] = { 0 };
                     struct UrlComponents comps = { 0 };
@@ -813,14 +822,16 @@ ImportProfileFromURLDialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
                                   "application/x-openvpn-profile",
                                   _TRUNCATE);
                     }
+
+                    const char *dl_username = (username_len > 0) ? username : "";
+                    const char *dl_password = (password_len > 0) ? password : "";
                     BOOL downloaded =
-                        DownloadProfile(hwndDlg, &comps, username, password, path, _countof(path));
+                        DownloadProfile(hwndDlg, &comps, dl_username, dl_password, path, _countof(path));
 
                     if (username_len > 0)
                     {
                         free(username);
                     }
-
                     if (password_len > 0)
                     {
                         SecureZeroMemory(password, strlen(password));
@@ -831,10 +842,60 @@ ImportProfileFromURLDialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
                     {
                         EndDialog(hwndDlg, LOWORD(wParam));
 
-                        ImportConfigFile(path, false); /* do not prompt user */
-                        _wunlink(path);
+                        if (type == server_generic)
+                        {
+                            /* Replace the default (first) config file directly */
+                            if (!o.chead)
+                            {
+                                MessageBoxW(hwndDlg,
+                                            L"No configuration found to replace.\n"
+                                            L"Please import a config file first.",
+                                            L"Import from URL",
+                                            MB_OK | MB_ICONWARNING);
+                                _wunlink(path);
+                                return TRUE;
+                            }
+
+                            connection_t *first = o.chead;
+                            WCHAR dest[MAX_PATH + 1];
+                            _sntprintf_0(dest, _T("%ls\\%ls"), first->config_dir, first->config_file);
+
+                            /* Backup existing config */
+                            WCHAR backup[MAX_PATH + 1];
+                            _sntprintf_0(backup, _T("%ls.bak"), dest);
+                            _wunlink(backup);
+                            _wrename(dest, backup);
+
+                            /* Copy downloaded profile to replace default config */
+                            if (!CopyFile(path, dest, FALSE))
+                            {
+                                MsgToEventLog(EVENTLOG_ERROR_TYPE,
+                                               L"Replace config <%ls> failed (error = %lu)",
+                                               dest, GetLastError());
+                                /* Restore backup on failure */
+                                _wrename(backup, dest);
+                                ShowLocalizedMsg(IDS_ERR_IMPORT_FAILED, dest);
+                                _wunlink(path);
+                                return TRUE;
+                            }
+
+                            /* Cleanup */
+                            _wunlink(path);
+                            _wunlink(backup);
+
+                            ShowTrayBalloon(LoadLocalizedString(IDS_NFO_IMPORT_SUCCESS),
+                                            first->config_name);
+                            RecreatePopupMenus();
+                        }
+                        else
+                        {
+                            /* Original Access Server import behavior */
+                            ImportConfigFile(path, true); /* prompt user */
+                            _wunlink(path);
+                        }
                     }
                     return TRUE;
+                }
 
                 case IDCANCEL:
                     EndDialog(hwndDlg, LOWORD(wParam));
